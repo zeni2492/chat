@@ -96,6 +96,7 @@ function sendMessageOrKickUser() {
 		onValue(userRef, (snapshot) => {
 			if (!snapshot.exists()) {
 				try {
+					alert('you were kicked')
 					kickUser(id)
 				} catch (error) {
 					console.log(error);
