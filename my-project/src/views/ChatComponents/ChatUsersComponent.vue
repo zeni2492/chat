@@ -1,9 +1,9 @@
 <template>
-    <div class="body border-b-2 max-h-screen overflow-auto">
-        <div class="border-b-2 p-2 w-full flex justify-between items-center">
+    <main class="body border-b-2 max-h-screen overflow-auto">
+        <header class="border-b-2 p-2 w-full flex justify-between items-center">
             <h1>Room : {{ RoomName }}</h1>
-            <div class="exitMobileButton mt-auto text-sm bg-green-500 w-10 rounded-full items-center justify-center text-white text-center"><button @click="$router.push('/')" class="w-full flex justify-center items-center">Exit</button></div>
-        </div>
+            <aside class="exitMobileButton mt-auto text-sm bg-green-500 w-10 rounded-full items-center justify-center text-white text-center"><button @click="$router.push('/')" class="w-full flex justify-center items-center">Exit</button></aside>
+        </header>
         <div class="ml-2 flex flex-row items-center border-none whitespace-nowrap">
             Users :
             <div class="w-full"><input class="searchUser w-4/5 outline-none border-b-2 ml-2 text-sm" v-model="FindUser" type="text"></div>
@@ -15,7 +15,7 @@
                 <button v-if="!isAdmin && user.id !== id" @click="$emit('removeUser',kickUser(user.id) )"   class="ml-auto mr-2"><img class="w-5 h-5" src="@/assets/trashCan.svg" alt=""></button>
             </div>
         </div>
-    </div>
+    </main>
 </template>
 
 <script setup lang="ts">

@@ -1,5 +1,5 @@
 <template>
-    <div v-for="message in messagesList" :key="message.id" class=" flex flex-col items-start mt-2" :class="userName=== message.user ? 'items-end' : 'items-start'">
+    <main v-for="message in messagesList" :key="message.id" class=" flex flex-col items-start mt-2" :class="userName=== message.user ? 'items-end' : 'items-start'">
         <h2 class="text-right  text-clip mx-2" :class="userName === message.user ? 'text-white' : 'text-black'">{{message.user}}</h2>
         <div class="container p-1 max-w-96 inline-block rounded-xl" :class="userName=== message.user ? 'bg-green-800' : 'bg-blue-800'">
             <h2 class="container__text text-xl break-all text-white">
@@ -9,7 +9,7 @@
                  {{ message.timestamp }}
             </div>
         </div>
-    </div>
+    </main>
 </template>
 
 

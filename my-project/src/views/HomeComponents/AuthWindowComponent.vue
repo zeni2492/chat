@@ -1,7 +1,7 @@
 <template>
-    <div
+    <form
         class="container w-2/6 flex justify-center items-center bg-white opacity-80 shadow-lg rounded-md flex-col p-10">
-        <div class="container__Join flex-col w-3/4" v-if="CreateOrJoinRoom">
+        <main class="container__Join flex-col w-3/4" v-if="CreateOrJoinRoom">
             <div>
                 <p class="text-headers">Login</p>
                 <inputComponent v-model="Login" :value="Login" />
@@ -13,9 +13,9 @@
             <div class="mt-5">
                 <SimpleButtonComponent @click.prevent="SaveUserInDataBase">Submit</SimpleButtonComponent>
             </div>
-        </div>
+        </main>
 
-        <div class="createRoom__container w-3/4">
+        <main class="createRoom__container w-3/4">
             <div class="createRoom__create flex-col w-full " v-if="!CreateOrJoinRoom">
                 <div>
                     <p class="text-headers">User Name</p>
@@ -29,14 +29,14 @@
                     <SimpleButtonComponent @click.prevent="CreateRoom">Create room</SimpleButtonComponent>
                 </div>
             </div>
-        </div>
+        </main>
 
-        <div class="switch_button mt-5 w-3/4 text-xl">
+        <nav class="switch_button mt-5 w-3/4 text-xl">
             <SimpleButtonComponent @click="CreateOrJoinRoom = !CreateOrJoinRoom">
                 {{ CreateOrJoinRoom ? 'Create Room'
             : 'Join Room' }}</SimpleButtonComponent>
-        </div>
-    </div>
+        </nav>
+    </form>
 
 </template>
 

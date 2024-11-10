@@ -1,24 +1,24 @@
 <template>
-	<div class="about w-full flex justify-between">
-		<div class="UserAside w-1/5 bg-white h-screen flex flex-col" :class="{ hidden: showUsers }">
+	<main class="about w-full flex justify-between">
+		<aside class="UserAside w-1/5 bg-white h-screen flex flex-col" :class="{ hidden: showUsers }">
 			<ChatUsersComponent :sendMessage="sendMessage" @removeUser="sendMessageOrKickUser" />
 			<div class="DesktopButton mt-auto w-full" >
 				<SimpleButtonComponent class="font-bold" @click="router.push('/')">Exit</SimpleButtonComponent>
 			</div>
-		</div>
+		</aside>
 		<div class=" w-full max-h-screen overflow-auto m-auto" ref="messagesContainer">
 			<div class="messages pb-12 mx-6">
 				<MessageComponent />
 			</div>
-			<div class="inputMessage absolute  bottom-0 w-5/6 bg-white flex flex-row ">
+			<form class="inputMessage absolute  bottom-0 w-5/6 bg-white flex flex-row ">
 				<span @click="showUsers = !showUsers" class="more cursor-pointer justify-center items-center"><img
 						class=" w-10 h-10" src="@/assets/more.svg" alt=""></span>
 				<inputComponent v-model="message" :value="message" @keydown.enter.prevent="sendMessageOrKickUser" />
 				<button @click.prevent="sendMessageOrKickUser"><img class="w-10 h-10" src="../assets/sendMessage.svg"
 						alt=""></button>
-			</div>
+			</form>
 		</div>
-	</div>
+	</main>
 </template>
 
 <script setup lang="ts">
