@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+    height: 100vh;
+    background-image: linear-gradient(to bottom right,#00FF5B,#0014FF);
+}
+
+
+.text-headers{
+    @apply text-2xl text-black mb-2 ;
+    overflow: hidden;
+}
