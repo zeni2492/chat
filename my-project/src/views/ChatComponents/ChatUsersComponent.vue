@@ -1,17 +1,18 @@
 <template>
-    <div class="border-b-2 max-h-screen overflow-auto">
-        <h1 class="border-b-2 p-2">
-            Room : {{ RoomName }}
-        </h1>
-        <div class="ml-2 flex flex-row items-center">
+    <div class="body border-b-2 max-h-screen overflow-auto">
+        <div class="border-b-2 p-2 w-full flex justify-between items-center">
+            <h1>Room : {{ RoomName }}</h1>
+            <div class="exitMobileButton mt-auto text-sm bg-green-500 w-10 rounded-full items-center justify-center text-white text-center"><button @click="$router.push('/')" class="w-full flex justify-center items-center">Exit</button></div>
+        </div>
+        <div class="ml-2 flex flex-row items-center border-none whitespace-nowrap">
             Users :
-            <div><input class="w-4/5 outline-none border-b-2 ml-2 text-sm" v-model="FindUser" type="text"></div>
+            <div class="w-full"><input class="searchUser w-4/5 outline-none border-b-2 ml-2 text-sm" v-model="FindUser" type="text"></div>
         </div>
         <div class="flex flex-row items-center mt-2  ml-2" v-for="user in searchedUsers " :key="user.id">
             <img class="cursor-pointer w-10 h-10 mr-2" src="../../assets/userIcon.svg" alt="">
             <div class="flex w-full flex-row items-center justify-between">
                 <span class="font-bold" :class="userName == user.Login ? 'text-green-600' : 'text-black'">{{ user.Login }}</span>
-                <button v-if="IsAdminStatus" @click="$emit('removeUser',kickUser(user.id) )"   class="ml-auto"><img class="w-5 h-5" src="@/assets/trashCan.svg" alt=""></button>
+                <button v-if="!isAdmin && user.id !== id" @click="$emit('removeUser',kickUser(user.id) )"   class="ml-auto mr-2"><img class="w-5 h-5" src="@/assets/trashCan.svg" alt=""></button>
             </div>
         </div>
     </div>
@@ -21,11 +22,13 @@
 import { ref as fbRef, getDatabase, onValue, remove } from 'firebase/database'
 import { ref, Ref, computed,defineEmits} from 'vue'
 
-const Users: Ref<IUsers[]> = ref([])
+const Users: Ref<IUsers[]> = ref([])// initialize with an empty array
 const FindUser = ref<string>('')
 const RoomName = sessionStorage.getItem('roomName') ?? sessionStorage.getItem('newRoomName');
 const userName = sessionStorage.getItem('UserName')
-const IsAdminStatus = sessionStorage.getItem('isAdmin')
+const id = sessionStorage.getItem('id')
+
+const isAdmin = ref(false)
 
 interface IUsers {
     id: string,
@@ -33,58 +36,50 @@ interface IUsers {
     Login: string
 }
 
-const getUsers = async () => {
+const getUsers = async () => { // async function that updates the Users array
   const db = getDatabase()
-  const roomRef = fbRef(db, `users/${RoomName}`)
+  const roomRef = fbRef(db, `users/${RoomName}`) // get the users from the database
 
-  onValue(roomRef, (snapshot) => {
+  onValue(roomRef, (snapshot) => { 
     const users = Object.values(snapshot.val()) as IUsers[]
-    const uniqueUsers = [...new Set(users.map((user) => JSON.stringify(user)))].map((user) => JSON.parse(user))
+    const uniqueUsers = [...new Set(users.map((user) => JSON.stringify(user)))].map((user) => JSON.parse(user))// remove duplicates
     Users.value = uniqueUsers
-
-    uniqueUsers.forEach((user) => {
-      user.isAdmin = IsAdminStatus === 'true' ? true : false
-    })
   })
 }
 
 getUsers()
 
-const searchedUsers = computed(() => {
+const searchedUsers = computed(() => { // computed property that returns the filtered users
   if (FindUser.value.trim() === '') {
     return Users.value
   } else {
-    const filteredUsers = Users.value.filter((user) => user.Login && user.Login.toLowerCase().includes(FindUser.value.toLowerCase()))
+    const filteredUsers = Users.value.filter((user) => user.Login && user.Login.toLowerCase().includes(FindUser.value.toLowerCase())) // filter the users based on the search query
     return filteredUsers
   }
 })
 
 const emit = defineEmits(['removeUser'])
 
-
-function kickUser(userId: string) {
+function kickUser(userId: string) { // function that removes a user by its id
   const db = getDatabase()
-  const userRef = fbRef(db, `users/${RoomName}/${userId}`)
+  const userRef = fbRef(db, `users/${RoomName}/${userId}`) //query the database for the user
   remove(userRef)
 }
-
-// const checkUserExist = (id: string): Promise<boolean> => {
-//   const db = getDatabase()
-//   const roomRef = fbRef(db, `users/${RoomName}/${id}`)
-//   return new Promise((resolve, reject) => {
-//     onValue(roomRef, (snapshot) => {
-//       if (!snapshot.exists()) {
-//         console.error('User does not exist in the database')
-//         resolve(false)
-//       } else {
-//         resolve(true)
-//       }
-//     }, (error) => {
-//       reject(error)
-//     })
-//   })
-// }
-
-
-
 </script>
+
+<style scoped>
+
+.exitMobileButton{
+    display: none
+}
+.searchUser{
+    width: 80% !important;
+}
+
+@media screen and (max-width: 760px) {
+    .exitMobileButton{
+        display: block
+    }
+
+}
+</style>

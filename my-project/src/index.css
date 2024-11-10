@@ -5,6 +5,7 @@
 body{
     height: 100vh;
     background-image: linear-gradient(to bottom right,#00FF5B,#0014FF);
+    overflow: hidden
 }
 
 

@@ -3,15 +3,15 @@
         class="container w-2/6 flex justify-center items-center bg-white opacity-80 shadow-lg rounded-md flex-col p-10">
         <div class="container__Join flex-col w-3/4" v-if="CreateOrJoinRoom">
             <div>
-                <p class="text-headers">Логин</p>
+                <p class="text-headers">Login</p>
                 <inputComponent v-model="Login" :value="Login" />
             </div>
             <div class="mt-5">
-                <p class="text-headers">Название комнаты</p>
+                <p class="text-headers">Room Name</p>
                 <inputComponent v-model="RoomName" :value="RoomName" />
             </div>
             <div class="mt-5">
-                <SimpleButtonComponent @click.prevent="SaveUserInDataBase">Войти</SimpleButtonComponent>
+                <SimpleButtonComponent @click.prevent="SaveUserInDataBase">Submit</SimpleButtonComponent>
             </div>
         </div>
 
@@ -22,19 +22,19 @@
                     <inputComponent v-model="Login" :value="Login" />
                 </div>
                 <div>
-                    <p class="text-headers">Название комнаты</p>
+                    <p class="text-headers mt-2">Room name</p>
                     <inputComponent v-model="NewRoomName" :value="NewRoomName" />
                 </div>
                 <div class="mt-5">
-                    <SimpleButtonComponent @click.prevent="CreateRoom">Создать комнату</SimpleButtonComponent>
+                    <SimpleButtonComponent @click.prevent="CreateRoom">Create room</SimpleButtonComponent>
                 </div>
             </div>
         </div>
 
         <div class="switch_button mt-5 w-3/4 text-xl">
             <SimpleButtonComponent @click="CreateOrJoinRoom = !CreateOrJoinRoom">
-                {{ CreateOrJoinRoom ? 'Создать комнату'
-            : 'Присоединится к комнате' }}</SimpleButtonComponent>
+                {{ CreateOrJoinRoom ? 'Create Room'
+            : 'Join Room' }}</SimpleButtonComponent>
         </div>
     </div>
 
@@ -69,39 +69,39 @@ interface IROOM {
     users: IUserData[];
 }
 
-const checkRoomExistence = async (roomName: string) => {
-    const db = getDatabase()
-    const rooms = fbRef(db, 'rooms')
-    const roomsData = await get(rooms).then((snapshot) => snapshot.val())
-    return roomsData && roomsData[roomName]
+const checkRoomExistence = async (roomName: string) => { // function that checks if the room exists
+    const db = getDatabase() // connect to the database
+    const rooms = fbRef(db, 'rooms') // path to rooms section
+    const roomsData = await get(rooms).then((snapshot) => snapshot.val())  // get the rooms from the database
+    return roomsData && roomsData[roomName] // return the room
 }
 
-const checkUserExistence = async (roomName: string, login: string) => {
-    const db = getDatabase()
+const checkUserExistence = async (roomName: string, login: string) => { // function that checks if the user exists
+    const db = getDatabase() 
     const usersRef = fbRef(db, 'users')
     const usersData = await get(usersRef).then((snapshot) => snapshot.val())
     const cleanUsersData = removeUndefinedValues(usersData)
-    if (cleanUsersData[roomName] && Array.isArray(cleanUsersData[roomName])) {
-        return cleanUsersData[roomName].some((user: IUserData) => user.Login === login)
+    if (cleanUsersData[roomName] && Array.isArray(cleanUsersData[roomName])) { // check if the room exists and is an array
+        return cleanUsersData[roomName].some((user: IUserData) => user.Login === login) // check if the user exists
     } else {
         return false
     }
 }
 
 const SaveUserInDataBase = async () => {
-    if (Login.value && RoomName.value) {
-        const roomExist = await checkRoomExistence(RoomName.value)
-        if (!roomExist) {
+    if (Login.value && RoomName.value) { // check is user and room fields filled
+        const roomExist = await checkRoomExistence(RoomName.value) // check if the room exists
+        if (!roomExist) { // if the room doesn't exist it suggest to create one
             alert('Комната не существует')
             CreateOrJoinRoom.value = false
             return
         }
 
-        const userExist = await checkUserExistence(RoomName.value, Login.value)
-        let UserData: IUserData; // объявляем переменную здесь
+        const userExist = await checkUserExistence(RoomName.value, Login.value) // check if the user exists
+        let UserData: IUserData; 
 
-        if (userExist) {
-            const roomId = roomExist.id
+        if (userExist) { // if the user exists it redirects to the chat and save his data
+            const roomId = roomExist.id 
             sessionStorage.setItem('roomName', RoomName.value)
             sessionStorage.setItem('UserName', Login.value)
             router.push({ name: 'Chat', params: { roomId } })
@@ -114,8 +114,8 @@ const SaveUserInDataBase = async () => {
             Login: Login.value
         }
 
-        const cleanUserData = removeUndefinedValues(UserData)
-        await updateUserInDatabase(RoomName.value, cleanUserData)
+        const cleanUserData = removeUndefinedValues(UserData) // clean data from undefined values
+        await updateUserInDatabase(RoomName.value, cleanUserData) // update user in database
 
         sessionStorage.setItem('roomName', RoomName.value)
         sessionStorage.setItem('UserName', Login.value)
@@ -123,20 +123,20 @@ const SaveUserInDataBase = async () => {
         sessionStorage.setItem('isAdmin', UserData.IsAdmin.toString()) // сохраняем статус администратора
 
         Login.value = ''
-        router.push({ name: 'Chat', params: { roomId: roomExist.id } })
+        router.push({ name: 'Chat', params: { roomId: roomExist.id } }) // if user doesn't exist it redirects to the chat with saved data
     }
 }
 
 const updateUserInDatabase = async (roomName: string, userData: IUserData) => {
-    const db = getDatabase()
-    const usersRef = fbRef(db, `users/${roomName}`)
+    const db = getDatabase() // connect to the database
+    const usersRef = fbRef(db, `users/${roomName}`) // path to users section
 
     try {
         await get(usersRef).then((snapshot) => {
-            const users = snapshot.val()
+            const users = snapshot.val() // get the users from the database
 
             if (users) {
-                const existingUser = (Object.values(users) as IUserData[]).find((user) => user.Login === userData.Login)
+                const existingUser = (Object.values(users) as IUserData[]).find((user) => user.Login === userData.Login) // if user already exist it doesn`t save to data again
 
                 if (existingUser) {
                     // обновляем существующего пользователя
@@ -147,14 +147,14 @@ const updateUserInDatabase = async (roomName: string, userData: IUserData) => {
                 }
 
                 const updatedUsers: { [key: string]: IUserData } = {}
-                Object.keys(users).forEach((key) => {
+                Object.keys(users).forEach((key) => { // remove undefined values
                     updatedUsers[key] = users[key]
                 })
 
-                update(usersRef, updatedUsers)
+                update(usersRef, updatedUsers) // update the users in the database
             } else {
                 // если пользователей нет, добавляем нового пользователя
-                update(usersRef, { [userData.id]: userData })
+                update(usersRef, { [userData.id]: userData }) // if users don't exist, add new user
             }
         })
     } catch (error) {
@@ -163,18 +163,18 @@ const updateUserInDatabase = async (roomName: string, userData: IUserData) => {
 }
 
 function removeUndefinedValues(obj:any): any {
-    return Object.entries(obj)
-        .filter(([_, v]) => v !== undefined)
-        .reduce((acc, [k, v]) => ({ ...acc, [k]: v === Object(v) ? removeUndefinedValues(v) : v }), {})
+    return Object.entries(obj) // convert object to array
+        .filter(([_, v]) => v !== undefined) // remove undefined values
+        .reduce((acc, [k, v]) => ({ ...acc, [k]: v === Object(v) ? removeUndefinedValues(v) : v }), {}) // convert back to object
 }
-const CreateRoom = async () => {
+const CreateRoom = async () => { // async function that creates a new room
     const db = getDatabase()
     const roomsRef = fbRef(db, 'rooms')
 
     try {
         const rooms = await get(roomsRef).then((snapshot) => snapshot.val())
 
-        if (rooms && rooms[NewRoomName.value]) {
+        if (rooms && rooms[NewRoomName.value]) { // check if the room already exists
             alert('Такая комната уже существует')
             CreateOrJoinRoom.value = true
             return
@@ -188,12 +188,12 @@ const CreateRoom = async () => {
         await update(fbRef(db, 'users'), { [NewRoomName.value]: [userData] })
 
         const roomData: IROOM = {
-            id: uuidv4(),
+            id: uuidv4(), // add uniq id to every room
             name: NewRoomName.value,
             users: [userData]
         }
 
-        await update(roomsRef, { [NewRoomName.value]: roomData })
+        await update(roomsRef, { [NewRoomName.value]: roomData }) // add new room
 
         sessionStorage.setItem('roomName', NewRoomName.value)
         sessionStorage.setItem('UserName', Login.value)
